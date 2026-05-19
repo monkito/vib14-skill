@@ -2,12 +2,14 @@
 # Validate SKILL.md frontmatter against the contract in
 # clash/docs/plans/2026-05-18-clawhub-skill-package.md §2.2.
 #
-# Per ClawHub schema (/clawhub/skill-format):
-#   - top-level: name, description, version
-#   - nested: metadata.openclaw.{homepage,emoji}
+# Schema per agentskills.io/specification:
+#   - top-level required: name, description
+#   - top-level optional: license, version (workflow-extracted for publish)
+#   - metadata is a flat string map; we use metadata.{homepage, emoji}
 #
 # Rules:
-#   - all 5 required leaves present
+#   - all 5 required leaves present (name, description, version,
+#     metadata.homepage, metadata.emoji)
 #   - version is strict semver X.Y.Z
 #   - every value is a single-line scalar (no |, >, double-quoted, or
 #     backslash-escaped multi-line forms)
@@ -45,9 +47,8 @@ required=(
   "description|^description:[[:space:]]+.+$"
   "version|^version:[[:space:]]+[0-9]+\\.[0-9]+\\.[0-9]+$"
   "metadata|^metadata:[[:space:]]*$"
-  "metadata.openclaw|^[[:space:]]{2}openclaw:[[:space:]]*$"
-  "metadata.openclaw.homepage|^[[:space:]]{4}homepage:[[:space:]]+.+$"
-  "metadata.openclaw.emoji|^[[:space:]]{4}emoji:[[:space:]]+.+$"
+  "metadata.homepage|^[[:space:]]{2}homepage:[[:space:]]+.+$"
+  "metadata.emoji|^[[:space:]]{2}emoji:[[:space:]]+.+$"
 )
 
 for entry in "${required[@]}"; do

@@ -2,6 +2,13 @@
 
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [0.1.2] - 2026-05-19
+
+### Added
+
+- HermesHub-compatible frontmatter：`metadata.author`、`metadata.hermes.{tags,category}`，以及 top-level `compatibility` 字段（沿用 HermesHub 现有 skill 约定）
+- 提交到 [HermesHub](https://github.com/amanning3390/hermeshub) 社区库收录
+
 ## [0.1.1] - 2026-05-19
 
 首发公开版本。

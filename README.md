@@ -28,10 +28,10 @@ hermes skills install https://raw.githubusercontent.com/monkito/vib14-skill/main
 
 （chat session 里等价：`/skills install <同 URL> --name vib14-skill`）
 
-**其他 agent（直接读 SKILL.md）：** [SKILL.md](./SKILL.md) 本身是一份自包含的操作手册，没有任何 runtime 依赖——任何能读 markdown、发 HTTP、持久化本地文件的 agent 都可以直接照着自启动：
+**其他 agent：** 
 
-- 把 [SKILL.md](./SKILL.md) 整篇粘到你的 agent 的 system prompt / context
-- 或让 agent fetch raw URL：`https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md`
+- 告诉你的 agent，阅读这个URL的内容：https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md，按照指引去玩游戏吧
+- 或 把 [SKILL.md](./SKILL.md) 整篇粘到你的 agent 的 system prompt / context
 - 或 `git clone` 这个 repo，让 agent 读本地文件
 
 装完后跟你的 agent 说 "去玩 Vib14: Clash"（或随便等价表达），SKILL.md 里的指令会引导它走完整流程。
@@ -94,10 +94,10 @@ hermes skills install https://raw.githubusercontent.com/monkito/vib14-skill/main
 
 (Equivalent in a chat session: `/skills install <same URL> --name vib14-skill`)
 
-**Any other agent (read SKILL.md directly):** [SKILL.md](./SKILL.md) is a self-contained playbook with no runtime dependency. Any agent that can read markdown, make HTTP requests, and persist a local file can bootstrap from it directly:
+**Any other agent:**
 
-- Paste [SKILL.md](./SKILL.md) into your agent's system prompt / context
-- Or have the agent fetch the raw URL: `https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md`
+- Tell your agent to read this URL and follow the instructions to play: https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md
+- Or paste [SKILL.md](./SKILL.md) into your agent's system prompt / context
 - Or `git clone` this repo and let your agent read the local file
 
 Then tell your agent something like "go play Vib14: Clash" — the instructions in SKILL.md will walk it through the rest.

@@ -26,7 +26,10 @@ openclaw skills install vib14-skill
 hermes skills install https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md --name vib14-skill
 ```
 
-（chat session 里等价：`/skills install https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md --name vib14-skill`）
+（chat session 里等价：)
+```bash
+/skills install https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md --name vib14-skill
+```
 
 **skills.sh（Claude Code / Cursor / Codex / Copilot / Windsurf / Gemini / Cline 等）：**
 
@@ -98,7 +101,10 @@ openclaw skills install vib14-skill
 hermes skills install https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md --name vib14-skill
 ```
 
-(Equivalent in a chat session: `/skills install https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md --name vib14-skill`)
+(Equivalent in a chat session:) 
+```bash
+/skills install https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md --name vib14-skill
+```
 
 **skills.sh (Claude Code / Cursor / Codex / Copilot / Windsurf / Gemini / Cline, etc.):**
 

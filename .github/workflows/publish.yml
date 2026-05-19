@@ -1,0 +1,194 @@
+name: Publish to ClawHub
+
+# Verifier-only workflow per
+# clash/docs/plans/2026-05-18-clawhub-skill-package.md §10.
+# - Does NOT run sync-skill.ts or read main-repo source. The artifact
+#   (SKILL.md) is pushed here by the main repo maintainer; this workflow
+#   only verifies frontmatter and publishes the existing file.
+# - Same-version republish will fail at the ClawHub API; bump `version:`
+#   in SKILL.md frontmatter on the main repo and re-push to recover.
+
+on:
+  # Auto-trigger on push is intentionally disabled during blind-test
+  # phase — SKILL.md is being read directly from GitHub raw URL by
+  # testers; nothing should publish to clawhub yet. Re-enable once the
+  # v14ai clawhub publisher is set up + CLAWHUB_PUBLISH_TOKEN secret
+  # is configured.
+  #
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - SKILL.md
+  #     - .github/workflows/publish.yml
+  #     - .github/scripts/validate-frontmatter.sh
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Re-run publish even when SKILL.md is unchanged (e.g. transient clawhub 5xx). Same version will still be rejected by clawhub."
+        required: false
+        default: "false"
+
+permissions:
+  contents: write   # create Release + tag on successful publish (§10.2 step 4)
+  issues: write
+  actions: read
+
+concurrency:
+  group: publish-clawhub
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Validate frontmatter
+        run: bash .github/scripts/validate-frontmatter.sh SKILL.md
+
+      - name: Extract version
+        id: meta
+        run: |
+          version=$(grep -E '^version:' SKILL.md | head -1 | sed -E 's/^version:[[:space:]]*//')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $version"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install clawhub CLI
+        run: npm install -g clawhub
+
+      - name: Authenticate
+        env:
+          CLAWHUB_PUBLISH_TOKEN: ${{ secrets.CLAWHUB_PUBLISH_TOKEN }}
+        run: |
+          if [ -z "${CLAWHUB_PUBLISH_TOKEN:-}" ]; then
+            echo "::error::CLAWHUB_PUBLISH_TOKEN secret is not set on this repo"
+            exit 1
+          fi
+          clawhub login --token "$CLAWHUB_PUBLISH_TOKEN"
+
+      - name: Publish to ClawHub
+        id: publish
+        run: |
+          set -o pipefail
+          clawhub skill publish . \
+            --version "${{ steps.meta.outputs.version }}" \
+            --owner v14ai \
+            2>&1 | tee /tmp/publish.log
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          tag="v${VERSION}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; skipping (idempotent re-run)."
+            exit 0
+          fi
+          gh release create "$tag" \
+            --title "$tag" \
+            --target "$GITHUB_SHA" \
+            --notes "Published to ClawHub as \`v14ai/clash-skill@${VERSION}\`.
+
+          Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+      - name: Capture publish log on failure
+        if: failure() && steps.publish.conclusion == 'failure'
+        id: tail
+        run: |
+          if [ -f /tmp/publish.log ]; then
+            tail -n 50 /tmp/publish.log > /tmp/publish.tail
+          else
+            echo "(no publish.log captured — failure occurred before publish step)" > /tmp/publish.tail
+          fi
+          {
+            echo 'tail<<EOF'
+            cat /tmp/publish.tail
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open issue + escalate on consecutive failures
+        if: failure()
+        uses: actions/github-script@v7
+        env:
+          PUBLISH_VERSION: ${{ steps.meta.outputs.version }}
+          PUBLISH_TAIL: ${{ steps.tail.outputs.tail }}
+        with:
+          script: |
+            const version = process.env.PUBLISH_VERSION || "(unknown)";
+            const tail = process.env.PUBLISH_TAIL || "(no log captured)";
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const title = `[publish-failure] v${version} (run #${context.runId})`;
+            const body = [
+              `Publish to ClawHub failed.`,
+              ``,
+              `- **Version:** \`${version}\``,
+              `- **Workflow run:** ${runUrl}`,
+              `- **Commit:** ${context.sha}`,
+              ``,
+              `### Last 50 lines of publish output`,
+              ``,
+              "```",
+              tail,
+              "```",
+              ``,
+              `### Recovery`,
+              ``,
+              `- Transient 5xx / network: re-run via Actions → "Publish to ClawHub" → Run workflow.`,
+              `- Same-version conflict (HTTP 409 / "already published"): bump \`version:\` in \`SKILL.md\` frontmatter on the main repo (\`clash\`), regenerate the artifact with \`bun scripts/sync-skill.ts --target=...\`, and push the new SKILL.md to this repo.`,
+              `- Frontmatter validation failed: fix \`SKILL.md\` frontmatter (see \`.github/scripts/validate-frontmatter.sh\`).`,
+              ``,
+              `Close this issue once the next publish succeeds.`,
+            ].join("\n");
+
+            const created = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ["publish-failure"],
+            });
+            core.info(`Opened issue #${created.data.number}: ${created.data.html_url}`);
+
+            // §10.5 consecutive-failure escalation: count open `publish-failure`
+            // issues opened in the last 7 days (including the one we just made).
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+            const recent = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              labels: "publish-failure",
+              since: sevenDaysAgo,
+              per_page: 100,
+            });
+            // Filter out PRs (listForRepo includes them) and stale-but-recently-updated issues.
+            const failures = recent.data.filter((i) => !i.pull_request && new Date(i.created_at) >= new Date(sevenDaysAgo));
+            core.info(`Open publish-failure issues in last 7 days: ${failures.length}`);
+
+            if (failures.length >= 3) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: created.data.number,
+                body: [
+                  `@${context.repo.owner} — this is the ${failures.length}${failures.length === 3 ? "rd" : "th"} publish failure in 7 days.`,
+                  ``,
+                  `Other open publish-failure issues:`,
+                  ...failures
+                    .filter((i) => i.number !== created.data.number)
+                    .map((i) => `- #${i.number} (${i.title})`),
+                  ``,
+                  `Worth checking: is the ClawHub token still valid? Is the v14ai org still active? Has the schema changed?`,
+                ].join("\n"),
+              });
+              core.warning(`Escalated: ${failures.length} consecutive publish-failure issues in 7 days.`);
+            }

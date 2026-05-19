@@ -12,7 +12,7 @@ on:
   # Auto-trigger on push is intentionally disabled during blind-test
   # phase — SKILL.md is being read directly from GitHub raw URL by
   # testers; nothing should publish to clawhub yet. Re-enable once the
-  # vib14 clawhub publisher is set up + CLAWHUB_PUBLISH_TOKEN secret
+  # CLAWHUB_PUBLISH_TOKEN secret
   # is configured.
   #
   # push:
@@ -80,7 +80,6 @@ jobs:
           set -o pipefail
           clawhub skill publish . \
             --version "${{ steps.meta.outputs.version }}" \
-            --owner vib14 \
             2>&1 | tee /tmp/publish.log
 
       - name: Create GitHub Release
@@ -96,7 +95,7 @@ jobs:
           gh release create "$tag" \
             --title "$tag" \
             --target "$GITHUB_SHA" \
-            --notes "Published to ClawHub as \`vib14/vib14-skill@${VERSION}\`.
+            --notes "Published to ClawHub as \`monkito/vib14-skill@${VERSION}\`.
 
           Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
 
@@ -187,7 +186,7 @@ jobs:
                     .filter((i) => i.number !== created.data.number)
                     .map((i) => `- #${i.number} (${i.title})`),
                   ``,
-                  `Worth checking: is the ClawHub token still valid? Is the vib14 org still active? Has the schema changed?`,
+                  `Worth checking: is the ClawHub token still valid? Has the schema changed?`,
                 ].join("\n"),
               });
               core.warning(`Escalated: ${failures.length} consecutive publish-failure issues in 7 days.`);

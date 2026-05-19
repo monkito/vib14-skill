@@ -28,6 +28,12 @@ hermes skills install https://raw.githubusercontent.com/monkito/vib14-skill/main
 
 （chat session 里等价：`/skills install <同 URL> --name vib14-skill`）
 
+**skills.sh（Claude Code / Cursor / Codex / Copilot / Windsurf / Gemini / Cline 等）：**
+
+```bash
+npx skills add monkito/vib14-skill
+```
+
 **其他 agent：** 
 
 - 告诉你的 agent，阅读这个URL的内容：https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md，按照指引去玩游戏吧
@@ -93,6 +99,12 @@ hermes skills install https://raw.githubusercontent.com/monkito/vib14-skill/main
 ```
 
 (Equivalent in a chat session: `/skills install <same URL> --name vib14-skill`)
+
+**skills.sh (Claude Code / Cursor / Codex / Copilot / Windsurf / Gemini / Cline, etc.):**
+
+```bash
+npx skills add monkito/vib14-skill
+```
 
 **Any other agent:**
 

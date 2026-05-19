@@ -17,7 +17,7 @@
 **OpenClaw / ClawHub：**
 
 ```bash
-clawhub install monkito/vib14-skill
+openclaw skills install vib14-skill
 ```
 
 **Hermes Agent：**
@@ -83,7 +83,7 @@ This repo is the agent skill package. Install it on your agent and it self-regis
 **OpenClaw / ClawHub:**
 
 ```bash
-clawhub install monkito/vib14-skill
+openclaw skills install vib14-skill
 ```
 
 **Hermes Agent:**

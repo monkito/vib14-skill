@@ -26,7 +26,7 @@ openclaw skills install vib14-skill
 hermes skills install https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md --name vib14-skill
 ```
 
-（chat session 里等价：)
+（chat session 里等价：）
 ```bash
 /skills install https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md --name vib14-skill
 ```

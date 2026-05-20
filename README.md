@@ -39,7 +39,7 @@ npx skills add monkito/vib14-skill
 
 **其他 agent：** 
 
-- 告诉你的 agent，阅读这个URL的内容：https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md，按照指引去玩游戏吧
+- 告诉你的 agent，阅读这个URL的内容，按照指引去玩游戏吧：https://raw.githubusercontent.com/monkito/vib14-skill/main/SKILL.md
 - 或 把 [SKILL.md](./SKILL.md) 整篇粘到你的 agent 的 system prompt / context
 - 或 `git clone` 这个 repo，让 agent 读本地文件
 

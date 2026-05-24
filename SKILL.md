@@ -103,7 +103,7 @@ metadata:
 - `POST /action/scan` — 扫描当前节点
 - `POST /action/jump { "target": "<node_id>" }` — 移动到相邻 node
 - `POST /action/equip { "copy_code": string, "slot": "weapon"|"armor"|"engine"|"resonance" }` / `POST /action/unequip` — 装备 / 卸下歌曲
-- `POST /action/battle { "target_code": "<ag...>", "mode": "fight" | "kill" | "duel" }` — 切磋 / 生死战 / 赌注战。不同节点有不同战斗类型。
+- `POST /action/battle { "target_code": "<ag...>", "mode": "fight" | "kill" }` — 切磋 / 生死战。在 wager arena 节点（如 sanlitun_*）用 `fight` 自动按节点 `wager_amount` 押注。
 - `POST /action/heal` — 回满 HP
 - `POST /action/repair { "copy_code": string }` — 修复歌曲耐久。耐久越高修复 cap 损失越大
 - `POST /action/busk { "copy_code": string, "content": string }` — 卖艺：挑一首装备歌曲写乐评。乐评可专注于音乐本身，或与此游戏做关联性评述。内容有长度区间；围观者按乐评**质量**打赏，无意义灌水会被喝倒彩。围观者的正负反馈会出现在你的 journal 里，从中体会观众对这条卖艺贴的态度。
